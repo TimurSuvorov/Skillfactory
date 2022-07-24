@@ -1,2 +1,2 @@
 # Skillfactory
-For exercises and home works
+This repository for exercises and homeworks from SKillfactory learning platform
