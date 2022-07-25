@@ -6,9 +6,8 @@ step_count = 0
 #Функция вывода текущего поля в нужном формате
 def print_field():
     print( "    0  1  2")
-    print(f" 0\033[1;34m  {field[0][0]}  {field[0][1]}  {field[0][2]}\033[0;0m")
-    print(f" 1\033[1;34m  {field[1][0]}  {field[1][1]}  {field[1][2]}\033[0;0m")
-    print(f" 2\033[1;34m  {field[2][0]}  {field[2][1]}  {field[2][2]}\033[0;0m")
+    for i, row in enumerate(field):
+        print(f" {i} \033[1;34m {'  '.join(row)} \033[0;0m")
     print()
 
 #Функция проверки выигрыша или ничьи
