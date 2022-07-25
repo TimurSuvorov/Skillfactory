@@ -44,5 +44,5 @@ while win_check() != "stop":
             step_count += 1
             print_field()
     except Exception:
-        print("\033[2;31mЧто-то пошло не так. Попробуй ввести по-другому\033[0;0m")
+        print("\033[2;31mЧто-то пошло не так. Попробуйте ввести по-другому\033[0;0m")
         print()
