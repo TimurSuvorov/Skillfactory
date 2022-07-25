@@ -35,7 +35,10 @@ print_field()
 while win_check() != "stop":
     try:
         i, j = map(int, input(f"Игрок '{PLAYER[step_count%2]}' введите координаты: ").split(' '))
-        if field[i][j] == 'x' or field[i][j] == 'o':
+        if 0 > i or i > 2 or 0 > j or j > 2 :
+            print("\033[2;33mКоординаты вне диапазона!\033[0;0m  ")
+            print()
+        elif field[i][j] == 'x' or field[i][j] == 'o':
             print(f"\033[2;33mЗдесь место занято '{field[i][j]}'. Поставьте в другое место на поле\033[0;0m ")
             print()
         else:
