@@ -123,3 +123,9 @@ class Board:
             self.allships = Board.rm_elem(Dot(shot_x, shot_y), self.allships) # Удаление из списка короблей
         else:                                       # Остальное: если промах
             self.board[shot_x - 1][shot_y - 1] = "T"
+
+
+class Player:
+    def __init__(self):
+        self.userboard = Board
+        self.aiboard = Bo
