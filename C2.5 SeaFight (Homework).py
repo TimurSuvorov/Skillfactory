@@ -109,7 +109,7 @@ class Board:
         self.allships.append(ship)
         self.contur(ship)
 
-    def contur(self, ship):
+    def contur(self, ship, draw=False):
         for ships_dots in ship:
             # Перебор клеток вокруг каждой точки "ships_dots" корабля
             for i in range(-1, 2):
@@ -121,6 +121,8 @@ class Board:
                             contur_dot not in ship and \
                             contur_dot not in self.conturdots:
                         self.conturdots.append(contur_dot)
+                        if draw:  # Свитч для отрисовки на поле
+                            self.board[contur_dot.x - 1][contur_dot.y - 1] = "\033[1;33m●\033[1;34m"
         return self.conturdots
 
     def hid(self):
@@ -128,6 +130,7 @@ class Board:
             return self.hidenboard
 
     def shot(self, shots):
+        self.conturdots = []  # Обнуляем каждый раз контуры для выстрелов
         if self.outofboard(shots):  # Проверка: если вне поля
             raise BoardOutException
         elif shots in self.shotlist:  # Проверка: если в то же место
@@ -139,6 +142,7 @@ class Board:
             self.allshipsdots.remove(shots)  # Удаление из общего списка точек кораблей
             self.allships = Board.rm_elem(shots, self.allships)  # Удаление из списка (массива) кораблей
             self.allships.remove([]) if [] in self.allships else self.allships  # Удаление пустых кораблей
+            self.contur([shots], draw=True)  # Расчёт контура и его отрисовка
             return "hit"
         else:                                       # Остальное: если промах
             self.board[shots.x - 1][shots.y - 1] = "\033[1;33m●\033[1;34m"  # В остальных случаях промах
@@ -155,16 +159,14 @@ class Player:
         pass
 
     def move(self):
-        while True:
-            try:
-                if self.board.shot(self.ask) == "hit" and len(self.board.allships) != 0:
-                    print(self.board)
-                    print("Ещё выстрел!")
-                    continue
-                break
-            except AllBoardExceptions as err:
-                print(err)
-                break
+        try:
+            if self.board.shot(self.ask) == "hit" and len(self.board.allships) != 0:
+                print(self.board)
+                print("Ещё выстрел!")
+                self.move()
+        except Exception as err:
+            print(err)
+            self.move()
 
 
 class User(Player):
