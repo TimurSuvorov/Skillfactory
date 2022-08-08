@@ -92,19 +92,21 @@ class Board:
             lst_new.append(row)
         return lst_new
 
+    def outofboard(self, dot):  # Проверка, что точка вне поля
+        return not(0 < dot.x <= self.size) or not(0 < dot.y <= self.size)
+
     def add_ship(self, ship):
         for ships_dots in ship:
-            # Проверка всех точек корабля на возможность установки
-            if ships_dots.x > self.size or ships_dots.y > self.size or \
-                    ships_dots.x < 1 or ships_dots.y < 1 or \
-                    Dot(ships_dots.x, ships_dots.y) in self.conturdots or \
-                    Dot(ships_dots.x, ships_dots.y) in self.allshipsdots:
+            # Проверка всех точек корабля на возможность установки (внутри поля, не в списке точек корабля+контура)
+            if self.outofboard(ships_dots) or \
+                    ships_dots in self.conturdots or \
+                    ships_dots in self.allshipsdots:
                 raise BoardWrongPlaceException
 
         # Если всё ОК, ставим на поле метку и добавляем в список кораблей
         for ships_dots in ship:
             self.board[ships_dots.x - 1][ships_dots.y - 1] = "■"  # Тело корабля
-            self.allshipsdots.append(Dot(ships_dots.x, ships_dots.y))
+            self.allshipsdots.append(ships_dots)
         self.allships.append(ship)
         self.contur(ship)
 
@@ -114,11 +116,12 @@ class Board:
             for i in range(-1, 2):
                 for j in range(-1, 2):
                     ships_dots.xc, ships_dots.yc = ships_dots.x + i, ships_dots.y + j
+                    contur_dot = Dot(ships_dots.xc, ships_dots.yc)
                     # Проверка: клетка внутри поля&не сам корабль&еще не добавлен в contur
-                    if (0 < ships_dots.xc <= self.size and 0 < ships_dots.yc <= self.size) and \
-                            (Dot(ships_dots.xc, ships_dots.yc) not in ship) and \
-                            (Dot(ships_dots.xc, ships_dots.yc) not in self.conturdots):
-                        self.conturdots.append(Dot(ships_dots.xc, ships_dots.yc))
+                    if not self.outofboard(contur_dot) and \
+                            contur_dot not in ship and \
+                            contur_dot not in self.conturdots:
+                        self.conturdots.append(contur_dot)
         return self.conturdots
 
     def hid(self):
@@ -126,22 +129,20 @@ class Board:
             return self.hidenboard
 
     def shot(self, shots):
-        shot_x = shots.x
-        shot_y = shots.y
-        if not(0 < shot_x <= self.size) or not(0 < shot_y <= self.size):  # Проверка: если вне поля
+        if self.outofboard(shots):  # Проверка: если вне поля
             raise BoardOutException
-        elif Dot(shot_x, shot_y) in self.shotlist:  # Проверка: если в то же место
+        elif shots in self.shotlist:  # Проверка: если в то же место
             raise BoardUsedException
-        elif Dot(shot_x, shot_y) in self.allshipsdots:  # Проверка: если попал в корабль
-            self.board[shot_x - 1][shot_y - 1] = "\033[1;31m╳\033[1;34m"
-            self.shotlist.append(Dot(shot_x, shot_y))  # Добавление в список выстрелов
-            self.allshipsdots.remove(Dot(shot_x, shot_y))  # Удаление из общего списка точек кораблей
-            self.allships = Board.rm_elem(Dot(shot_x, shot_y), self.allships)  # Удаление из списка (массива) кораблей
+        elif shots in self.allshipsdots:  # Проверка: если попал в корабль
+            self.board[shots.x - 1][shots.y - 1] = "\033[1;31m╳\033[1;34m"
+            self.shotlist.append(shots)  # Добавление в список выстрелов
+            self.allshipsdots.remove(shots)  # Удаление из общего списка точек кораблей
+            self.allships = Board.rm_elem(shots, self.allships)  # Удаление из списка (массива) кораблей
             self.allships.remove([]) if [] in self.allships else self.allships  # Удаление пустых кораблей
             return "hit"
         else:                                       # Остальное: если промах
-            self.board[shot_x - 1][shot_y - 1] = "\033[1;33m●\033[1;34m"  # В остальных случаях промах
-            self.shotlist.append(Dot(shot_x, shot_y))  # Добавление в список выстрелов
+            self.board[shots.x - 1][shots.y - 1] = "\033[1;33m●\033[1;34m"  # В остальных случаях промах
+            self.shotlist.append(shots)  # Добавление в список выстрелов
 
 
 class Player:
