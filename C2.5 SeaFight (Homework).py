@@ -155,14 +155,16 @@ class Player:
         pass
 
     def move(self):
-        try:
-            if self.board.shot(self.ask) == "hit" and len(self.board.allships) != 0:
-                print(self.board)
-                print("Ещё выстрел!")
-                self.move()
-        except Exception as err:
-            print(err)
-            self.move()
+        while True:
+            try:
+                if self.board.shot(self.ask) == "hit" and len(self.board.allships) != 0:
+                    print(self.board)
+                    print("Ещё выстрел!")
+                    continue
+                break
+            except AllBoardExceptions as err:
+                print(err)
+                break
 
 
 class User(Player):
