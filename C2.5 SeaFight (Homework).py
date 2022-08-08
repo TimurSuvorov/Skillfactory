@@ -75,13 +75,12 @@ class Board:
         self.shotlist = []
 
     def __str__(self):
-        row0 = "         x\y  " + " | ".join([str(i) for i in range(1, self.size + 1)]) + " | "
-        print(row0)
+        rows = "         x\y  " + " | ".join([str(i) for i in range(1, self.size + 1)]) + " | "
         if self.hid:
             self.board = self.hidenboard
         for i, row in enumerate(self.board):
-            print(f"        | {i+1} |\033[1;34m {' | '.join(row)} | \033[0;0m")
-        return ""
+            rows += f"\n        | {i+1} |\033[1;34m {' | '.join(row)} | \033[0;0m"
+        return rows
 
     @staticmethod  # Функция удаления элемента из массивов разного порядка
     def rm_elem(elem, lst_):
@@ -135,6 +134,7 @@ class Board:
             raise BoardUsedException
         elif shots in self.allshipsdots:  # Проверка: если попал в корабль
             self.board[shots.x - 1][shots.y - 1] = "\033[1;31m╳\033[1;34m"
+            print("Попадание!")
             self.shotlist.append(shots)  # Добавление в список выстрелов
             self.allshipsdots.remove(shots)  # Удаление из общего списка точек кораблей
             self.allships = Board.rm_elem(shots, self.allships)  # Удаление из списка (массива) кораблей
@@ -142,6 +142,7 @@ class Board:
             return "hit"
         else:                                       # Остальное: если промах
             self.board[shots.x - 1][shots.y - 1] = "\033[1;33m●\033[1;34m"  # В остальных случаях промах
+            print("Промах!")
             self.shotlist.append(shots)  # Добавление в список выстрелов
 
 
@@ -155,9 +156,9 @@ class Player:
 
     def move(self):
         try:
-            if self.board.shot(self.ask) == "hit":
+            if self.board.shot(self.ask) == "hit" and len(self.board.allships) != 0:
                 print(self.board)
-                print("Попадание! Ещё выстрел.")
+                print("Ещё выстрел!")
                 self.move()
         except Exception as err:
             print(err)
@@ -260,25 +261,33 @@ class Game:
         return board
 
     def loop(self):
-        while len(self.user_board.allships) > 0 and len(self.ai_board.allships) > 0:
-            self.user_pl.move()
-            self.ai_pl.move()
-            print()
+        step = 0
+        while True:
+            if step % 2 == 0:
+                print(">>>>Ход игрока<<<<")
+                self.user_pl.move()
+            else:
+                print(">>>>Ход компьютера<<<<")
+                self.ai_pl.move()
             print("                \033[2;32mПоле компьютера\033[0;0m")
             print(self.user_board)
-            print(f"         Осталось кораблей у компьютера {len(self.user_board.allships)}")
+            print(f"       Осталось кораблей у компьютера {len(self.user_board.allships)}")
             print()
             print("                  \033[2;32mПоле игрока\033[0;0m")
             print(self.ai_board)
-            print(f"         Осталось кораблей у игрока {len(self.ai_board.allships)}")
-            print()
+            print(f"       Осталось кораблей у игрока {len(self.ai_board.allships)}")
+            print("____" * 8)
 
-        if len(self.user_board.allshipsdots) == 0:
-            winner = "!!!Вы победили!!!"
-        else:
-            winner = "!!!Победил компьютер!!!"
+            if len(self.user_board.allships)==0:
+                print("\n         Победа за вами!")
+                break
+            elif len(self.ai_board.allships)==0:
+                print("\n       Победил компьютер!")
+                break
 
-        return print("Конец игры ", winner, end="\n")
+            step += 1
+
+        return print("      _____Конец игры_____")
 
     def start(self):
         self.random_board(self.user_board)
