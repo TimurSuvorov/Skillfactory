@@ -69,8 +69,9 @@ class Board:
         self.hid = hid
         self.board = [["◌"]*size for _ in range(size)]
         self.hidenboard = [["?"]*size for _ in range(size)]
-        self.allshipsdots = []
-        self.allships = []
+        self.allshipsdots = []  # По мере ударов уменьшается
+        self.allships = []  # По мере ударов уменьшается
+        self.busy = []  # Статичный список занимаемых кроблей
         self.conturdots = []
         self.shotlist = []
 
@@ -99,12 +100,13 @@ class Board:
             # Проверка всех точек корабля на возможность установки (внутри поля, не в списке точек корабля+контура)
             if self.outofboard(ships_dots) or \
                     ships_dots in self.conturdots or \
-                    ships_dots in self.allshipsdots:
+                    ships_dots in self.busy:
                 raise BoardWrongPlaceException
 
         # Если всё ОК, ставим на поле метку и добавляем в список кораблей
         for ships_dots in ship:
             self.board[ships_dots.x - 1][ships_dots.y - 1] = "■"  # Тело корабля
+            self.busy.append(ships_dots)
             self.allshipsdots.append(ships_dots)
         self.allships.append(ship)
         self.contur(ship)
@@ -114,14 +116,11 @@ class Board:
             # Перебор клеток вокруг каждой точки "ships_dots" корабля
             for i in range(-1, 2):
                 for j in range(-1, 2):
-                    ships_dots.xc, ships_dots.yc = ships_dots.x + i, ships_dots.y + j
-                    contur_dot = Dot(ships_dots.xc, ships_dots.yc)
-                    # Проверка: клетка внутри поля&не сам корабль&еще не добавлен в contur
-                    if not self.outofboard(contur_dot) and \
-                            contur_dot not in ship and \
-                            contur_dot not in self.conturdots:
+                    contur_dot = Dot(ships_dots.x + i, ships_dots.y + j)
+                    # Проверка: клетка внутри поля&не сам корабль
+                    if not (self.outofboard(contur_dot) or contur_dot in self.busy):
                         self.conturdots.append(contur_dot)
-                        if draw:  # Свитч для отрисовки на поле
+                        if draw:  # Свитч (для shot) для отрисовки на поле вокруг попадания
                             self.board[contur_dot.x - 1][contur_dot.y - 1] = "\033[1;33m●\033[1;34m"
         return self.conturdots
 
@@ -130,7 +129,6 @@ class Board:
             return self.hidenboard
 
     def shot(self, shots):
-        self.conturdots = []  # Обнуляем каждый раз контуры для выстрелов
         if self.outofboard(shots):  # Проверка: если вне поля
             raise BoardOutException
         elif shots in self.shotlist:  # Проверка: если в то же место
@@ -195,6 +193,7 @@ class AI(Player):
 
 class Game:
     def __init__(self):
+        self.types = [4, 2, 2, 1, 1, 1]
         self.greet()
         self.size = self.asksize  # При инициализации игры вопрос про размер поля
         self.mode = self.askmode  # При инициализации игры вопрос про режим игры
@@ -247,8 +246,7 @@ class Game:
 
     def random_board(self, board):
         attempt = 0
-        types = [4, 2, 2, 1, 1, 1]
-        for i, shiptype in enumerate(types):
+        for i, shiptype in enumerate(self.types):
             while attempt < 1000:
                 try:
                     board.add_ship(Ship(shiptype, Dot.randomdot(self.size), random.choice(["v", "h"])).dots)
