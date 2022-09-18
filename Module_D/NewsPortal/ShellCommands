@@ -15,15 +15,15 @@
 4.	Добавить 2 статьи и 1 новость.
 >>> post1 = Post.objects.create(title = 'Frontend в условиях полной редактируемости',
 							content = 'Нам требовалось разработать сайт на базе CMS «1С-Битрикс: Управление сайтом» и при этом предоставить контент-менеджерам полную власть над страницами и их содержимым. Контент-менеджеры \читай не разработчики\ должны иметь возможность собирать страницы из заранее созданных блоков, определять порядок этих блоков на странице, управлять настройками дополнительного визуального оформления для каждого из блоков и редактировать контент в рамках поддерживаемых типов данных. И всё это управляется через визуальный редактор Битрикса без необходимости вручную создавать новый инфоблок для каждого блока на странице. Такую систему можно назвать “Блочная редактируемость”.',
-							type = 'post',
+							type = 'AR',
 							author = au1)
 >>> post2 = Post.objects.create(title = 'Китай и ОАЭ договорились о сотрудничестве по исследованию Луны',
 							content = 'Космический центр Мохаммеда бин Рашида (MBRSC) Объединённых Арабских Эмиратов сообщил о подписании меморандума о взаимопонимании с Национальным китайским космическим управлением для совместной работы над будущими лунными проектами.',
-							type = 'post',
+							type = 'AR',
 							author = au1)
->>> news = Post.objects.create(title = '«Бавария» проваливается в бундеслиге',
+>>> news1 = Post.objects.create(title = '«Бавария» проваливается в бундеслиге',
 							content = 'Кажется, несколько дней назад был напряженная игра в Лиге чемпионов, отнявшая массу эмоций, однако «Манчестер Сити» словно не утолил свой победный голод. Шикарный пас пяткой от Фодена, кросс Де Брейне и Грилиш открыл счет на 1-й минуте!',
-							type = 'news',
+							type = 'NW',
 							author = au2)
 5.	Присвоить им категории (как минимум в одной статье/новости должно быть не меньше 2 категорий).
 >>> post1.category.add(cat4, cat3)
@@ -48,18 +48,18 @@
 
 8.	Обновить рейтинги пользователей.
 >>> for author_ in Author.objects.all().values_list('username_id', flat=True):
->>>     newrate = sum(Post.objects.filter(author_id = author_).values_list('rate', flat=True))*3 + \
->>>               sum(Comment.objects.filter(author_id = author_).values_list('rate', flat=True)) + \
->>>               sum(Comment.objects.filter(post_id__author_id = author_).values_list('rate', flat=True))
+>>>     newrate = sum(Post.objects.filter(author_id = author_).values_list('rating', flat=True))*3 + \
+>>>               sum(Comment.objects.filter(author_id = author_).values_list('rating', flat=True)) + \
+>>>               sum(Comment.objects.filter(post_id__author_id = author_).values_list('rating', flat=True))
 >>>     au = Author.objects.get(username_id=author_)
->>>     au.update_rating(newrate); au.save()
+>>>     au.update_rating(newrating); au.save()
 
 9.	Вывести username и рейтинг лучшего пользователя (применяя сортировку и возвращая поля первого объекта).
->>> Author.objects.order_by('-rate').first()
+>>> Author.objects.order_by('-rating').first()
 
 10.	Вывести дату добавления, username автора, рейтинг, заголовок и превью лучшей статьи, основываясь на лайках/дислайках к этой статье.
->>> print(Post.objects.order_by('-rate').values('cr_time', 'author_id__username_id__username', 'rate', 'title').first(), Post.objects.order_by('-rate').first().preview())
+>>> print(Post.objects.order_by('-rating').values('cr_time', 'author_id__username_id__username', 'rating', 'title').first(), Post.objects.order_by('-rating').first().preview())
 
 11.	Вывести все комментарии (дата, пользователь, рейтинг, текст) к этой статье.
->>> bestpost = Post.objects.order_by('-rate').first()
+>>> bestpost = Post.objects.order_by('-rating').first()
 >>> Comment.objects.filter(post = bestpost).values_list('content', flat=True)
