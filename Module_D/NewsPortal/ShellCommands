@@ -37,14 +37,14 @@
 >>> add_comm4 = Comment.objects.create(post=news1, author=user1, content = 'Спартак - чемпион!')
 
 7.	Применяя функции like() и dislike() к статьям/новостям и комментариям, скорректировать рейтинги этих объектов.
->>> add_comm1.like();add_comm1.save()
->>> add_comm2.like();add_comm2.save()
->>> add_comm3.dislike();add_comm3.save()
->>> add_comm4.like();add_comm4.save()
+>>> add_comm1.like()
+>>> add_comm2.like()
+>>> add_comm3.dislike()
+>>> add_comm4.like()
 
->>> post1.like();post1.save()
->>> post2.like();post2.save()
->>> news1.dislike();news1.save()
+>>> post1.like()
+>>> post2.like()
+>>> news1.dislike()
 
 8.	Обновить рейтинги пользователей.
 >>> for author_ in Author.objects.all().values_list('username_id', flat=True):
@@ -52,7 +52,7 @@
 >>>               sum(Comment.objects.filter(author_id = author_).values_list('rating', flat=True)) + \
 >>>               sum(Comment.objects.filter(post_id__author_id = author_).values_list('rating', flat=True))
 >>>     au = Author.objects.get(username_id=author_)
->>>     au.update_rating(newrating); au.save()
+>>>     au.update_rating(newrating)
 
 9.	Вывести username и рейтинг лучшего пользователя (применяя сортировку и возвращая поля первого объекта).
 >>> Author.objects.order_by('-rating').first()

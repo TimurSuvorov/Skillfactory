@@ -9,18 +9,9 @@ class Author(models.Model):
                                     primary_key=True  # Первичный ключ будет тот же, что и внешний ключ
                                     )
 
-# newrating calculating
-# for author_ in Author.objects.all().values_list('username_id', flat=True):
-#     newrating = sum(Post.objects.filter(author_id = author_).values_list('rating', flat=True))*3 + \
-#               sum(Comment.objects.filter(author_id = author_).values_list('rating', flat=True)) + \
-#               sum(Comment.objects.filter(post_id__author_id = author_).values_list('rating', flat=True))
-#     au = Author.objects.get(username_id=author_)
-#     au.update_rating(newrating)
-#     au.save()
-
-
     def update_rating(self, newrating):
         self.rating = newrating
+        self.save()
 
 class Category(models.Model):
     catname = models.CharField(max_length=64,
@@ -56,10 +47,11 @@ class Post(models.Model):
 
     def like(self):
         self.rating += 1
+        self.save()
 
     def dislike(self):
         self.rating -= 1
-
+        self.save()
 
 
 class PostCategory(models.Model):
@@ -76,7 +68,8 @@ class Comment(models.Model):
 
     def like(self):
         self.rating += 1
+        self.save()
 
     def dislike(self):
         self.rating -= 1
-
+        self.save()
