@@ -48,11 +48,8 @@
 
 8.	Обновить рейтинги пользователей.
 >>> for author_ in Author.objects.all().values_list('username_id', flat=True):
->>>     newrate = sum(Post.objects.filter(author_id = author_).values_list('rating', flat=True))*3 + \
->>>               sum(Comment.objects.filter(author_id = author_).values_list('rating', flat=True)) + \
->>>               sum(Comment.objects.filter(post_id__author_id = author_).values_list('rating', flat=True))
 >>>     au = Author.objects.get(username_id=author_)
->>>     au.update_rating(newrating)
+>>>     au.update_rating()
 
 9.	Вывести username и рейтинг лучшего пользователя (применяя сортировку и возвращая поля первого объекта).
 >>> Author.objects.order_by('-rating').first()

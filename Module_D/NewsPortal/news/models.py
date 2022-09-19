@@ -9,9 +9,14 @@ class Author(models.Model):
                                     primary_key=True  # Первичный ключ будет тот же, что и внешний ключ
                                     )
 
-    def update_rating(self, newrating):
+    def update_rating(self):
+
+        newrating = sum(Post.objects.filter(author_id=self.username_id).values_list('rating', flat=True)) * 3 + \
+                    sum(Comment.objects.filter(author_id=self.username_id).values_list('rating', flat=True)) + \
+                    sum(Comment.objects.filter(post_id__author_id=self.username_id).values_list('rating', flat=True))
         self.rating = newrating
         self.save()
+
 
 class Category(models.Model):
     catname = models.CharField(max_length=64,
@@ -43,7 +48,7 @@ class Post(models.Model):
     category = models.ManyToManyField(Category, through='PostCategory')
 
     def preview(self):
-        return self.content[:124] + "..."
+        return self.content[:123] + "..."
 
     def like(self):
         self.rating += 1
