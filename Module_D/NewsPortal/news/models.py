@@ -1,20 +1,43 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Sum
 
 
 class Author(models.Model):
     rating = models.SmallIntegerField(default=0)
-    username = models.OneToOneField(User,
+    author = models.OneToOneField(User,
                                     on_delete=models.CASCADE,
                                     primary_key=True  # Первичный ключ будет тот же, что и внешний ключ
                                     )
 
     def update_rating(self):
+        # aupostrat = self.post_set.all().aggregate(AuPostRating=Sum('rating')).get('AuPostRating')
+        # if aupostrat is None:
+        #     aupostrat = 0
+        #
+        # aucommentrat = self.author.comment_set.all().aggregate(AuCommRating=Sum('rating')).get('AuCommRating')
+        # if aucommentrat is None:
+        #     aucommentrat = 0
+        #
+        # aupostcommentrat = 0
+        # for xpost in self.post_set.all():
+        #     xpostcommrat = xpost.comment_set.all().aggregate(AuPostCommRating=Sum('rating')).get('AuPostCommRating')
+        #     if xpostcommrat is None:
+        #         xpostcommrat = 0
+        #     aupostcommentrat += xpostcommrat
+        #
+        # self.rating = aupostrat*3 + aucommentrat + aupostcommentrat
 
-        newrating = sum(Post.objects.filter(author_id=self.username_id).values_list('rating', flat=True)) * 3 + \
-                    sum(Comment.objects.filter(author_id=self.username_id).values_list('rating', flat=True)) + \
-                    sum(Comment.objects.filter(post_id__author_id=self.username_id).values_list('rating', flat=True))
+        newrating = sum(Post.objects.filter(postAuthor=self).values_list('rating', flat=True)) * 3 + \
+                    sum(Comment.objects.filter(commUser__author=self).values_list('rating', flat=True)) + \
+                    sum(Comment.objects.filter(post__postAuthor=self).values_list('rating', flat=True))
+
+        print((sum(Post.objects.filter(postAuthor=self).values_list('rating', flat=True)) * 3)) #
+        print(sum(Comment.objects.filter(commUser__author=self).values_list('rating', flat=True)))
+        print(sum(Comment.objects.filter(post__postAuthor=self).values_list('rating', flat=True)))
+
         self.rating = newrating
+
         self.save()
 
 
@@ -44,7 +67,7 @@ class Post(models.Model):
                             default='post'
                             )
     cr_time = models.DateTimeField(auto_now_add=True)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='post')
+    postAuthor = models.ForeignKey(Author, on_delete=models.CASCADE)
     category = models.ManyToManyField(Category, through='PostCategory')
 
     def preview(self):
@@ -66,7 +89,7 @@ class PostCategory(models.Model):
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    commUser = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField(blank=False)
     cr_time = models.DateTimeField(auto_now_add=True)
     rating = models.IntegerField(default=0)
