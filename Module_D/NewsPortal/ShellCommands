@@ -58,7 +58,6 @@ news1.dislike()
 for author_ in Author.objects.all().values_list('author', flat=True):
     au = Author.objects.get(author=author_)
     au.update_rating()
-
 9.	Вывести username и рейтинг лучшего пользователя (применяя сортировку и возвращая поля первого объекта).
 Author.objects.order_by('-rating').first()
 

@@ -4,11 +4,17 @@ from django.db.models import Sum
 
 
 class Author(models.Model):
-    rating = models.SmallIntegerField(default=0)
     author = models.OneToOneField(User,
                                     on_delete=models.CASCADE,
                                     primary_key=True  # Первичный ключ будет тот же, что и внешний ключ
                                     )
+
+    def __str__(self):
+        return f"{self.author}"
+
+    class Meta:
+        verbose_name = "Автор"
+        verbose_name_plural = "Авторы"
 
     def update_rating(self):
         # aupostrat = self.post_set.all().aggregate(AuPostRating=Sum('rating')).get('AuPostRating')
@@ -37,7 +43,6 @@ class Author(models.Model):
         print(sum(Comment.objects.filter(post__postAuthor=self).values_list('rating', flat=True)))
 
         self.rating = newrating
-
         self.save()
 
 
@@ -45,7 +50,12 @@ class Category(models.Model):
     catname = models.CharField(max_length=64,
                                unique=True
                                )
+    def __str__(self):
+        return f"{self.catname}"
 
+    class Meta:
+        verbose_name = "Категория"
+        verbose_name_plural = "Категории"
 
 class Post(models.Model):
 
@@ -70,6 +80,13 @@ class Post(models.Model):
     postAuthor = models.ForeignKey(Author, on_delete=models.CASCADE)
     category = models.ManyToManyField(Category, through='PostCategory')
 
+    def __str__(self):
+        return f"{self.title}"
+
+    class Meta:
+        verbose_name = "Пост"
+        verbose_name_plural = "Посты"
+
     def preview(self):
         return self.content[:123] + "..."
 
@@ -93,6 +110,13 @@ class Comment(models.Model):
     content = models.TextField(blank=False)
     cr_time = models.DateTimeField(auto_now_add=True)
     rating = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.content}"
+
+    class Meta:
+        verbose_name = "Комментарий"
+        verbose_name_plural = "Комментарии"
 
     def like(self):
         self.rating += 1

@@ -1,0 +1,29 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+
+
+<!--Подставка в титул страницы тип поста и автора-->
+{% block title %}
+{{ specialpost.type|post_type }} от автора {{specialpost.postAuthor.author.username}}
+{% endblock title %}
+
+
+{% block content %}
+
+<style type="text/css">
+    .line {
+    border-left: 3px solid #ccc; /* Параметры линии */
+    margin-left: 20px; /* Отступ слева */
+    margin-top: 40px; /* Отступ сверху */
+    padding-left: 15px; /* Расстояние от линии до текста */
+    }
+</style>
+
+<h2 align="left">{{ specialpost.title|censor:'*' }}</h2>
+<hr>
+<p align="right" autofocus>Дата публикации: {{ specialpost.cr_time|date:"d M Y" }}</p>
+<p class="line" align="left"> {{ specialpost.content|censor:'*' }} </p>
+
+
+{% endblock content %}
