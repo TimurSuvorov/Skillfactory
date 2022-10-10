@@ -5,7 +5,7 @@ from ..extension import BADWORDS
 register = template.Library()
 
 @register.filter()
-def censor(value:str, symbol = '*')->str:
+def censor(value:str, symbol='*')->str:
     badwords_in_text = set(value.split( )) & set(BADWORDS)  #  Список нецензурных слов в тексте путем пересечения множеств
     if badwords_in_text:
         for badword in badwords_in_text:

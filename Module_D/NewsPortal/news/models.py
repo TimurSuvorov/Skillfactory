@@ -1,13 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Sum
+from django.urls import reverse
 
 
 class Author(models.Model):
     author = models.OneToOneField(User,
-                                    on_delete=models.CASCADE,
-                                    primary_key=True  # Первичный ключ будет тот же, что и внешний ключ
-                                    )
+                                  on_delete=models.CASCADE,
+                                  primary_key=True  # Первичный ключ будет тот же, что и внешний ключ
+                                  )
+
+    rating = models.SmallIntegerField(default=0)
 
     def __str__(self):
         return f"{self.author}"
@@ -38,24 +41,21 @@ class Author(models.Model):
                     sum(Comment.objects.filter(commUser__author=self).values_list('rating', flat=True)) + \
                     sum(Comment.objects.filter(post__postAuthor=self).values_list('rating', flat=True))
 
-        print((sum(Post.objects.filter(postAuthor=self).values_list('rating', flat=True)) * 3)) #
-        print(sum(Comment.objects.filter(commUser__author=self).values_list('rating', flat=True)))
-        print(sum(Comment.objects.filter(post__postAuthor=self).values_list('rating', flat=True)))
-
         self.rating = newrating
         self.save()
 
 
 class Category(models.Model):
     catname = models.CharField(max_length=64,
-                               unique=True
-                               )
+                               unique=True)
+
     def __str__(self):
         return f"{self.catname}"
 
     class Meta:
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
+
 
 class Post(models.Model):
 
@@ -98,10 +98,19 @@ class Post(models.Model):
         self.rating -= 1
         self.save()
 
+    def get_absolute_url(self):
+        return reverse('special_post', args=[str(self.id)])
+
 
 class PostCategory(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.category.catname}: {self.post.title}"
+
+    def get_absolute_url(self):
+        return reverse('special_post' , args=[str(self.id)])
 
 
 class Comment(models.Model):

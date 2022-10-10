@@ -1,0 +1,87 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+
+{% block title %}
+All news
+{% endblock title %}
+
+
+{% block content %}
+<style>
+    table {
+      font-family: arial, sans-serif;
+      width: 100%;
+    }
+    td, th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+    tr:nth-child(even) {
+      background-color: #dddddd;
+    }
+</style>
+
+<h1>All news</h1>
+<hr>
+
+<p align="left"> Общее количество: {{ newslist|length }}</p>
+
+
+{% if newslist %}
+    <table border="1" align="center">
+        <tr>
+            <th align="center">Заголовок</th>
+            <th align="center">Дата публикации</th>
+            <th align="center">Автор</th>
+            <th align="center">Тип статьи</th>Содержание
+            <th align="center">Содержание</th>
+        </tr>
+    {% for news in newslist %}
+        <tr>
+            <td align="left"><a href="/news/{{ news.pk }}">{{ news.title|censor:"*" }}</a></td>
+            <td align="center">{{ news.cr_time|date:'d M Y' }}</td>
+            <td align="center">{{ news.postAuthor }}</td>
+            <td align="center">{{ news.type|post_type }}</td>
+            <td align="center">{{ news.content|censor:"*"|truncatechars:30 }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+<hr>
+{% endif %}
+
+<div>
+{# Если количество элементов больше paginate_by #}
+{% if paginator.count > paginator.per_page %}
+
+    {% if page_obj.has_previous %}
+        {% if page_obj.previous_page_number != 1 %}
+            ...
+        {% endif %}
+        <a href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+    {% endif %}
+
+    {# Текущая страница #}
+    {{ page_obj.number }}
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+        {% if page_obj.next_page_number != page_obj.paginator.num_pages %}
+            ...
+        {% endif %}
+    {% endif %}
+{% endif %}
+</div>
+
+<div>
+
+{% if page_obj.paginator.num_pages > 2 %}
+    <a href="?page=1">First page</a>
+    |
+    <a href="?page={{ page_obj.paginator.num_pages }}">Last page</a>
+{% endif %}
+</div>
+
+
+{% endblock content %}
