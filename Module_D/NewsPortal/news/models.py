@@ -77,7 +77,7 @@ class Post(models.Model):
                             default='post'
                             )
     cr_time = models.DateTimeField(auto_now_add=True)
-    postAuthor = models.ForeignKey(Author, on_delete=models.CASCADE)
+    postAuthor = models.ForeignKey(Author, on_delete=models.RESTRICT)
     category = models.ManyToManyField(Category, through='PostCategory')
 
     def __str__(self):

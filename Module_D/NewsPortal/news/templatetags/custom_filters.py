@@ -14,6 +14,11 @@ def censor(value:str, symbol='*')->str:
     return value
 
 @register.filter()
-def post_type(type_value):
+def typetorus(type_value):
     types = {'AR': "Пост", 'NW': "Новость"}
+    return types[type_value]
+
+@register.filter()
+def typetoeng(type_value):
+    types = {'AR': "article", 'NW': "news"}
     return types[type_value]

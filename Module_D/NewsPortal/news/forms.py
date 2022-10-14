@@ -7,10 +7,6 @@ from .models import Post, Author, Category
 class PostForm(ModelForm):
     title = CharField(min_length=10, label='Название')
     content = CharField(min_length=10, label='Содержание')
-    postAuthor = ModelChoiceField(label='Автор',
-                                  empty_label='Выберите автора',
-                                  queryset=Author.objects.all(),
-                                  )
     category = ModelMultipleChoiceField(label='Категория',
                                         queryset=Category.objects.all(),
                                         widget=SelectMultiple
@@ -18,7 +14,7 @@ class PostForm(ModelForm):
 
     class Meta:
         model = Post
-        fields = ['title', 'content', 'postAuthor', 'category']
+        fields = ['title', 'content', 'category']
 
     def clean(self):
         cleaned_data = super(PostForm, self).clean()
@@ -29,6 +25,5 @@ class PostForm(ModelForm):
             raise ValidationError(
                 "Ошибка: Такая статья уже есть"
             )
-
 
         return cleaned_data

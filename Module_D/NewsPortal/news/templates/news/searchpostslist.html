@@ -25,16 +25,15 @@
 </style>
 
 <h1>Поиск статей и новостей</h1>
-<hr>
 
-<p align="left"> Общее количество: {{ newslist|length }}</p>
 <hr>
     {# Форма поиска #}
    <form action="" method="get">
        {{ newsfilterset.form.as_p }}
        <input type="submit" value="Найти!"/>
    </form>
-<hr>
+
+<p align="left"> Общее количество: {{ paginator.count }}</p>
 
 {% if newslist %}
     <table border="1" align="center">
@@ -42,16 +41,27 @@
             <th align="center">Заголовок</th>
             <th align="center">Дата публикации</th>
             <th align="center">Автор</th>
-            <th align="center">Тип статьи</th>Содержание
+            <th align="center">Тип статьи</th>
             <th align="center">Содержание</th>
+            {% if perms.news.change_post %}
+            <th align="center">Действие</th>
+            {% endif %}
         </tr>
     {% for news in newslist %}
         <tr>
             <td align="left"><a href="/news/{{ news.pk }}">{{ news.title|censor:"*" }}</a></td>
             <td align="center">{{ news.cr_time|date:'d M Y' }}</td>
             <td align="center">{{ news.postAuthor }}</td>
-            <td align="center">{{ news.type|post_type }}</td>
+            <td align="center">{{ news.type|typetorus }}</td>
             <td align="center">{{ news.content|censor:"*"|truncatechars:30 }}</td>
+            {% if news.type == 'NW' and perms.news.change_post and perms.news.delete_post %}
+                    <td align="center"><a href="{% url 'news_edit' pk=news.pk %}">Edit</a>
+                                       <a href="{% url 'news_delete' pk=news.pk %}">Delete</a></td>
+            {% endif %}
+            {% if news.type == 'AR' and perms.news.change_post and perms.news.delete_post%}
+                    <td align="center"><a href="{% url 'article_edit' pk=news.pk %}">Edit</a>
+                                       <a href="{% url 'article_delete' pk=news.pk %}">Delete</a></td>
+            {% endif %}
         </tr>
     {% endfor %}
     </table>
