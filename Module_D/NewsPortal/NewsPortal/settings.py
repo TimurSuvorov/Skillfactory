@@ -13,6 +13,8 @@ import os.path
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+from dotenv import load_dotenv
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -37,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'news',
+    'news.apps.NewsConfig',
     'accounts',
 
     'django.contrib.sites',
@@ -50,9 +52,12 @@ INSTALLED_APPS = [
 
     'allauth.socialaccount.providers.yandex',
     'allauth.socialaccount.providers.vk',
+
+    'django_apscheduler',
 ]
 
 SITE_ID = 1
+SITE_URL = 'http://127.0.0.1:8000/'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -150,10 +155,38 @@ AUTHENTICATION_BACKENDS = [
 LOGIN_REDIRECT_URL = '/news'
 LOGOUT_REDIRECT_URL = '/news'
 
+# Загрузка переменных окружения
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(dotenv_path):
+    load_dotenv(dotenv_path)
+else:
+    print("Не найден файл переменных окружения '.env'")
+
+#ACCOUNT_FORMS = {"signup": "accounts.forms.SignUp"}  # Переопределение формы по умолчанию
+
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'none'
-#ACCOUNT_FORMS = {"signup": "accounts.forms.SignUp"}  # Переопределение формы по умолчанию
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_EMAIL_VERIFICATION = True
 
+# Setup for SMTP Yandex
+EMAIL_HOST = 'smtp.yandex.ru'  # адрес сервера Яндекс-почты для всех один и тот же
+EMAIL_PORT = 465  # порт smtp сервера тоже одинаковый
+EMAIL_HOST_USER = os.getenv('yandex_EMAIL_HOST_USER')  # ваше имя пользователя, например, если ваша почта user@yandex.ru, то сюда надо писать user, иными словами, это всё то что идёт до собаки
+EMAIL_HOST_PASSWORD = os.getenv("yandex_EMAIL_HOST_PASSWORD")  # пароль от почты
+EMAIL_USE_SSL = True
+DEFAULT_FROM_EMAIL = os.getenv("yandex_EMAIL_HOST_USER")+'@yandex.ru'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# # Setup for SMTP SendGrid
+# SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+# EMAIL_HOST = 'smtp.sendgrid.net'
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'apikey' # this is exactly the value 'apikey'
+# EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
+# EMAIL_USE_TLS = True
+
+# Apscheduler settings
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+APSCHEDULER_RUN_NOW_TIMEOUT = 25

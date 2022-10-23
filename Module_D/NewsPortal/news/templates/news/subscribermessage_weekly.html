@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Недельный дайжест новостей</title>
+</head>
+<body>
+    <h3> Здравствуйте, {{ subscr_user }}. Для Вас последние новости по подписке! </h3>
+    <ul>
+    {% for postinstance in postinstances %}
+        <li><a href="{{ site_url }}news/{{ postinstance.pk }}">{{ postinstance.title|truncatechars:50 }}</a></li>
+    {% endfor%}
+    </ul>
+</body>
+</html>

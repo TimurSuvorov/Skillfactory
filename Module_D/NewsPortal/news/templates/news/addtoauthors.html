@@ -1,0 +1,16 @@
+{% extends 'flatpages/default.html' %}
+
+{% block title %}
+Добавление к авторам
+{% endblock title %}
+
+{% block content %}
+
+<div align="center">
+        <h2>{{ message }}</h2>
+</div>
+
+<div align="center">
+<a href="{% url 'list_posts' %}">Домашняя страница</a>
+</div>
+{% endblock content %}

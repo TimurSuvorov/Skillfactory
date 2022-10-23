@@ -1,10 +1,22 @@
 <div class="text-wrapper">
-    <div class="title" data-content="404">
+    <div class="title" data-content="404"  align="center">
         <b>403 - ACCESS DENIED</b>
     </div>
 
-    <div class="subtitle">
-        <p>Oops, You don't have permission to access this page.</p>
+    <div class="subtitle"  align="center">
+        <p>Ой, у вас нет прав на это!</p>
+
+    <div align="center">
+        {% if exception == 'Вы слишком много пишите, отдохните!' %}
+            <p>{{ exception }}</p>
+        {% else %}
+            <p>{{ exception }}</p>
+            <form style="display:inline" action="{% url 'addtoauthors' %}">
+            <button>Присоединиться к авторам</button>
+            </form>
+        {% endif %}
+    </div>
+
     </div>
     <a href="/news">Главная страница</a>
 </div>

@@ -3,7 +3,7 @@
 {% load custom_filters %}
 
 {% block title %}
-All news
+Все новости
 {% endblock title %}
 
 
@@ -14,32 +14,54 @@ All news
       width: 100%;
     }
     td, th {
-      border: 1px solid #dddddd;
+      border: 1px solid #fce2de;
       text-align: left;
       padding: 7px;
     }
     tr:nth-child(even) {
-      background-color: #dddddd;
+      background-color: #fce2de;
     }
+    ul {
+        padding: 1; /* Убираем поля */
+        margin-left: 10px; /* Отступ слева */
+    }
+
 </style>
 
-<p align="left">Добро пожаловать пользователь "{{ request.user }}"</p>
+{# Текущий пользователь и авторизация #}
 
-<h1>All news</h1>
+<div align="left">
+    {% if request.user.is_authenticated%}
+        <p align="left">Добро пожаловать пользователь "{{ request.user }}"</p>
+    {% else %}
+        <p align="left"><a href="{% url 'account_login' %}">Авторизируйтесь</a>, пожалуйста, на сайте</p>
+    {% endif %}
+
+    {% if request.user.is_authenticated and not isauthor %}
+        <p>Сейчас вы не можете публиковать свои статьи и новости.
+            <a href="{% url 'addtoauthors' %}">Станьте автором прямо сейчас</a> </p>
+    {% endif %}
+</div>
+
+<h1>Все новости</h1>
 <hr>
 
-{% if perms.news.add_post %}
+{# Категории и подписка #}
+<div align="left">
+    <h3>Подпишитесь на любимые категории:</h3>
+    {% if newslist and request.user.is_authenticated %}
+    <ul>
+    {% for category in categories %}
+        {% if not category.catname in curr_subscribes %}
+            <li>{{ category.catname }} <a style="font-size: 10px" href="{% url 'subscribe' %}?catname={{category.catname}}" target="_blank">Подписаться</a></li>
+        {% else %}
+            <li>{{ category.catname }} <a style="font-size: 10px" href="{% url 'unsubscribe' %}?catname={{category.catname}}" target="_blank">Отписаться</a></li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+    {% endif %}
+</div>
 
-<p>
-    <form style="display:inline" action="{% url 'news_create' %}">
-        <button>Добавить новость</button>
-    </form>
-    <form style="display:inline" action="{% url 'article_create' %}">
-        <button>Добавить статью</button>
-    </form>
-</p>
-
-{% endif %}
 
 <p align="left"> Общее количество: {{ paginator.count }}</p>
 
@@ -49,6 +71,7 @@ All news
             <th align="center">Заголовок</th>
             <th align="center">Дата публикации</th>
             <th align="center">Автор</th>
+            <th align="center">Категория</th>
             <th align="center">Тип</th>
             <th align="center">Содержание</th>
             {% if perms.news.change_post %}
@@ -57,9 +80,10 @@ All news
         </tr>
     {% for news in newslist %}
         <tr>
-            <td align="left"><a href="/news/{{ news.pk }}">{{ news.title|censor:"*" }}</a></td>
+            <td align="left"><a href="/news/{{ news.pk }}">{{ news.title|censor:"*"|truncatechars:55 }}</a></td>
             <td align="center">{{ news.cr_time|date:'d M Y' }}</td>
             <td align="center">{{ news.postAuthor }}</td>
+            <td align="center">{% for cat in news.category.all %}{{ cat.catname }}&nbsp;{% endfor %}</td>
             <td align="center">{{ news.type|typetorus }}</td>
             <td align="center">{{ news.content|censor:"*"|truncatechars:30 }}</td>
             {% if news.type == 'NW' and perms.news.change_post and perms.news.delete_post %}
@@ -67,7 +91,7 @@ All news
                     <td align="center"><a href="{% url 'news_edit' pk=news.pk %}">{{ news.PostAuthor.id }}Edit</a>
                                        <a href="{% url 'news_delete' pk=news.pk %}">Delete</a></td>
                 {% else %}
-                    <td align="center">Not available</td>
+                    <td align="center">N/A</td>
                 {% endif %}
             {% endif %}
             {% if news.type == 'AR' and perms.news.change_post and perms.news.delete_post%}
@@ -75,7 +99,7 @@ All news
                     <td align="center"><a href="{% url 'article_edit' pk=news.pk %}">Edit</a>
                                        <a href="{% url 'article_delete' pk=news.pk %}">Delete</a></td>
                 {% else %}
-                    <td align="center">Not available</td>
+                    <td align="center">N/A</td>
                 {% endif %}
             {% endif %}
         </tr>
@@ -116,5 +140,19 @@ All news
 {% endif %}
 </div>
 
+{# Кнопки добавления новости/статьи #}
+
+{% if perms.news.add_post %}
+
+<p>
+    <form style="display:inline" action="{% url 'news_create' %}">
+        <button>Добавить новость</button>
+    </form>
+    <form style="display:inline" action="{% url 'article_create' %}">
+        <button>Добавить статью</button>
+    </form>
+</p>
+
+{% endif %}
 
 {% endblock content %}

@@ -1,1 +1,3 @@
-BADWORDS = []
+BADWORDS = ['fuck',
+            'редиска',
+            ]

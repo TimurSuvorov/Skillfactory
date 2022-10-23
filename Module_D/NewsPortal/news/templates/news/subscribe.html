@@ -1,0 +1,29 @@
+{% extends 'flatpages/default.html' %}
+
+
+{% block title %}
+Ваша подписка
+{% endblock title %}
+
+
+{% block content %}
+
+{% if new_subscribe != None %}
+    <h4 align="">Вы подписались на новую категорию новостей и статей "{{ new_subscribe }}"</h4>
+{% else%}
+    <h4>Вы уже подписаны на категорию "{{ req_subscribe }}"</h4>
+{% endif %}
+
+
+{% if curr_subscribes %}
+<div align="left">
+<ul>
+    <h4>Все текущие подписки:</h4>
+    {% for curr_subscribe in curr_subscribes %}
+        <li style="padding-left: 0px">{{ curr_subscribe }}</li>
+    {% endfor %}
+</ul>
+</div>
+{% endif %}
+
+{% endblock content %}

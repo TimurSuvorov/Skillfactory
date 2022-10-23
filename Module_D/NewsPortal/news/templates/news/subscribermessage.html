@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Обновления на портале</title>
+</head>
+<body>
+    <p> Здравствуйте, {{ subscr_user }}. Новая статья в твоих любимых разделах! </p>
+    <h2>{{ newpostdata.title }}</h2>
+    <p><a href="{{ site_url }}news/{{ newpostdata.pk }}">{{ newpostdata.title|truncatechars:50 }}</a></p>
+
+</body>
+</html>

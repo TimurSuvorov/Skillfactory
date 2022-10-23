@@ -5,8 +5,8 @@ from .models import Post, Author, Category
 
 
 class PostForm(ModelForm):
-    title = CharField(min_length=10, label='Название')
-    content = CharField(min_length=10, label='Содержание')
+    title = CharField(min_length=1, label='Название')
+    content = CharField(min_length=1, label='Содержание')
     category = ModelMultipleChoiceField(label='Категория',
                                         queryset=Category.objects.all(),
                                         widget=SelectMultiple
