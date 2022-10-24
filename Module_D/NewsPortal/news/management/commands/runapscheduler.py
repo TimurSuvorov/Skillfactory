@@ -30,18 +30,18 @@ class Command(BaseCommand):
         scheduler = BlockingScheduler(timezone=settings.TIME_ZONE)
         scheduler.add_jobstore(DjangoJobStore( ), "default")
 
-        scheduler.add_job(
-            my_job,
-            trigger=CronTrigger(second="*/10"),
-            id="my_job",
-            max_instances=1,
-            replace_existing=True,
-        )
-        logger.info("Added job 'my_job'.")
+        # scheduler.add_job(
+        #     my_job,
+        #     trigger=CronTrigger(second="*/10"),
+        #     id="my_job",
+        #     max_instances=1,
+        #     replace_existing=True,
+        # )
+        # logger.info("Added job 'my_job'.")
 
         scheduler.add_job(
             weekly_digest,
-            trigger=CronTrigger(day_of_week="mon", hour="00", minute="00"),
+            trigger=CronTrigger(second="*/30"),
             id="weekly_digest",
             max_instances=1,
             replace_existing=True,

@@ -3,7 +3,6 @@
 {% load custom_filters %}
 
 
-<!--Подставка в титул страницы тип поста и автора-->
 {% block title %}
 {{ specialpost.type|typetorus }} от автора {{specialpost.postAuthor.author.username}}
 {% endblock title %}
@@ -24,7 +23,5 @@
 <hr>
 <p align="right" autofocus>Дата публикации: {{ specialpost.cr_time|date:"d M Y" }}</p>
 <p class="line" align="left"> {{ specialpost.content|censor:'*' }} </p>
-
-<p align="left">{% for categ in specialpost.category.all %} {{ categ }} {% endfor %}</p>
 
 {% endblock content %}

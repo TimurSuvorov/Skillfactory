@@ -53,9 +53,9 @@
     <ul>
     {% for category in categories %}
         {% if not category.catname in curr_subscribes %}
-            <li>{{ category.catname }} <a style="font-size: 10px" href="{% url 'subscribe' %}?catname={{category.catname}}" target="_blank">Подписаться</a></li>
+            <li>{{ category }} <a style="font-size: 10px" href="{% url 'subscribe' category.id %}" target="_blank">Подписаться</a></li>
         {% else %}
-            <li>{{ category.catname }} <a style="font-size: 10px" href="{% url 'unsubscribe' %}?catname={{category.catname}}" target="_blank">Отписаться</a></li>
+            <li>{{ category }} <a style="font-size: 10px" href="{% url 'unsubscribe' category.id %}" target="_blank">Отписаться</a></li>
         {% endif %}
     {% endfor %}
     </ul>
@@ -75,7 +75,7 @@
             <th align="center">Тип</th>
             <th align="center">Содержание</th>
             {% if perms.news.change_post %}
-            <th align="center">Действие</th>
+            <th align="center">Действие {{ perms.news.change_post }}</th>
             {% endif %}
         </tr>
     {% for news in newslist %}
@@ -83,7 +83,10 @@
             <td align="left"><a href="/news/{{ news.pk }}">{{ news.title|censor:"*"|truncatechars:55 }}</a></td>
             <td align="center">{{ news.cr_time|date:'d M Y' }}</td>
             <td align="center">{{ news.postAuthor }}</td>
-            <td align="center">{% for cat in news.category.all %}{{ cat.catname }}&nbsp;{% endfor %}</td>
+            <td align="left"><ul>
+                {% for category in news.category.all %}
+                <li style="display:inline"><a href="{% url 'category_list' pk=category.pk %}">{{ category }}</a></li>
+                {% endfor %}</ul></td>
             <td align="center">{{ news.type|typetorus }}</td>
             <td align="center">{{ news.content|censor:"*"|truncatechars:30 }}</td>
             {% if news.type == 'NW' and perms.news.change_post and perms.news.delete_post %}

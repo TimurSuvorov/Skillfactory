@@ -1,0 +1,111 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+
+{% block title %}
+Новости категории {{ category }}
+{% endblock title %}
+
+
+{% block content %}
+<style>
+    table {
+      font-family: arial, sans-serif;
+      width: 100%;
+    }
+    td, th {
+      border: 1px solid #fce2de;
+      text-align: left;
+      padding: 7px;
+    }
+    tr:nth-child(even) {
+      background-color: #fce2de;
+    }
+    ul {
+        padding: 1; /* Убираем поля */
+        margin-left: 10px; /* Отступ слева */
+    }
+
+</style>
+
+{# Текущий пользователь и авторизация #}
+<div align="left">
+    {% if request.user.is_authenticated%}
+        <p align="left">Добро пожаловать пользователь "{{ request.user }}"</p>
+    {% else %}
+        <p align="left"><a href="{% url 'account_login' %}">Авторизируйтесь</a>, пожалуйста, на сайте</p>
+    {% endif %}
+</div>
+
+<h1>Новости категории {{ category }}</h1>
+<hr>
+{# Подписка на категорию #}
+
+{% if is_not_subscriber%}
+    <p class="text-center"><a href="{% url 'subscribe' category.id %}" class="btn btn-secondary btn-sm">Подписаться</a></p>
+{% else %}
+    <p class="text-center"><a href="{% url 'unsubscribe' category.id %}" class="btn btn-secondary btn-sm">Отписаться</a></p>
+{% endif %}
+
+<hr>
+
+
+<p align="left"> Общее количество: {{ paginator.count }}</p>
+
+{% if category_news_list %}
+    <table border="1" align="center">
+        <tr>
+            <th align="center">Заголовок</th>
+            <th align="center">Дата публикации</th>
+            <th align="center">Автор</th>
+            <th align="center">Категория</th>
+            <th align="center">Тип</th>
+            <th align="center">Содержание</th>
+        </tr>
+    {% for news in category_news_list %}
+        <tr>
+            <td align="left"><a href="/news/{{ news.pk }}">{{ news.title|censor:"*"|truncatechars:55 }}</a></td>
+            <td align="center">{{ news.cr_time|date:'d M Y' }}</td>
+            <td align="center">{{ news.postAuthor }}</td>
+            <td align="center">{% for cat in news.category.all %}{{ cat.catname }}&nbsp;{% endfor %}</td>
+            <td align="center">{{ news.type|typetorus }}</td>
+            <td align="center">{{ news.content|censor:"*"|truncatechars:30 }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+<hr>
+{% endif %}
+
+<div>
+{# Если количество элементов больше paginate_by #}
+{% if paginator.count > paginator.per_page %}
+
+    {% if page_obj.has_previous %}
+        {% if page_obj.previous_page_number != 1 %}
+            ...
+        {% endif %}
+        <a href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+    {% endif %}
+
+    {# Текущая страница #}
+    {{ page_obj.number }}
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+        {% if page_obj.next_page_number != page_obj.paginator.num_pages %}
+            ...
+        {% endif %}
+    {% endif %}
+{% endif %}
+</div>
+
+<div>
+
+{% if page_obj.paginator.num_pages > 2 %}
+    <a href="?page=1">First page</a>
+    |
+    <a href="?page={{ page_obj.paginator.num_pages }}">Last page</a>
+{% endif %}
+</div>
+
+{% endblock content %}

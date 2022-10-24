@@ -14,10 +14,10 @@ from .models import PostCategory, Category, Post
 @receiver(m2m_changed, sender=PostCategory)
 def send_to_subscribers(sender, instance, **kwargs):
     if kwargs['action'] == 'post_add':
-        categories_added = kwargs['pk_set']
+        categories_added = instance.category.all()
         subscribers_data = []
         for category in categories_added:
-            subscribers_data += Category.objects.get(pk=category).subscribers.values_list('username', 'email')
+            subscribers_data += category.subscribers.values_list('username', 'email')
         if subscribers_data:
             for subscr_user, subscr_email in set(subscribers_data):
                 if subscr_user != instance.postAuthor.author.username:
@@ -28,8 +28,9 @@ def send_to_subscribers(sender, instance, **kwargs):
                                                      'site_url': SITE_URL
                                                      },
                                                     )
-                    send_mail_function(html_content, subscr_email)
-                    print('SysInfo: Отправлено письмо по сигналу создания поста:', subscr_user)
+                    send_mail_function(html_content, subscr_email, subject_email='Update for you')
+                    print(f'SysInfo: Отправлено письмо по сигналу создания поста: {subscr_user} по адресу {subscr_email}')
+
 
 @receiver(post_save, sender=EmailAddress)
 def new_user_signal(sender, instance, **kwargs):
@@ -55,9 +56,9 @@ def send_mail_function(html_content_email, to_email, body_email='',
                        subject_email='Update for you', from_email=settings.DEFAULT_FROM_EMAIL):
     msg = EmailMultiAlternatives(
         subject=subject_email,
-        body=body_email,
+        body='',
         from_email=from_email,
         to=[to_email],
     )
     msg.attach_alternative(html_content_email, "text/html")
-    #msg.send()
+    msg.send()

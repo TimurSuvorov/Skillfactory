@@ -9,7 +9,7 @@
     <h3> Здравствуйте, {{ subscr_user }}. Для Вас последние новости по подписке! </h3>
     <ul>
     {% for postinstance in postinstances %}
-        <li><a href="{{ site_url }}news/{{ postinstance.pk }}">{{ postinstance.title|truncatechars:50 }}</a></li>
+        <li><a href="{{ site_url }}{{ postinstance.get_absolute_url }}">{{ postinstance.title|truncatechars:50 }}</a></li>
     {% endfor%}
     </ul>
 </body>

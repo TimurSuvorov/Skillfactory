@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -145,6 +145,22 @@ class DeletePost(OwnerPermissionRequiredMixin, DeleteView):
     success_url = reverse_lazy('list_posts')  # Переход после создания. Возвращается с помощью метода get_success_url
 
 
+class CategoryListView(ListView):
+    model = Post
+    template_name = 'category_list.html'
+    context_object_name = 'category_news_list'
+
+    def get_queryset(self):
+        self.category = get_object_or_404(Category, pk=self.kwargs['pk'])
+        queryset = Post.objects.filter(category=self.category).order_by('-cr_time')
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_not_subscriber'] = self.request.user not in self.category.subscribers.all()
+        context['category'] = self.category
+        return context
+
 @login_required
 def addtoauthors(request: HttpRequest):
     user = request.user
@@ -164,30 +180,28 @@ def addtoauthors(request: HttpRequest):
 
 
 @login_required
-def subscribe(request: HttpRequest, new_subscribe=None):
+def subscribe(request: HttpRequest, pk, new_subscribe=None):
     user = request.user
-    curr_subscribes = user.category_set.values_list('catname', flat=True)  # Все подписки-категории для юзера списком
-    req_subscribe = request.GET['catname']  # Запрашиваемая категория на подписку
-    if not (req_subscribe in curr_subscribes):  # Проверка активна ли подписка
-        Category.objects.get(catname=req_subscribe).subscribers.add(user)
+    curr_subscribes = user.category_set.values_list('pk', flat=True)  # Все подписки-категории для юзера списком
+    req_subscribe = Category.objects.get(pk=pk).catname
+    if not (pk in curr_subscribes):  # Проверка активна ли подписка
+        Category.objects.get(pk=pk).subscribers.add(user)
         new_subscribe = req_subscribe
-        curr_subscribes = user.category_set.values_list('catname', flat=True)
-    return render(request, 'subscribe.html', context={'curr_subscribes': curr_subscribes,
+    return render(request, 'subscribe.html', context={'curr_subscribes': user.category_set.values_list('catname', flat=True),
                                                            'new_subscribe': new_subscribe,
                                                            'req_subscribe': req_subscribe, }
                   )
 
 
 @login_required
-def unsubscribe(request: HttpRequest, old_subscribe=None):
+def unsubscribe(request: HttpRequest, pk, old_subscribe=None):
     user = request.user
-    curr_subscribes = user.category_set.values_list('catname', flat=True)  # Все подписки-категории для юзера списком
-    req_unsubscribe = request.GET['catname']
-    if req_unsubscribe in curr_subscribes:
-        Category.objects.get(catname=req_unsubscribe).subscribers.remove(user)
-        old_subscribe = req_unsubscribe
-        curr_subscribes = user.category_set.values_list('catname', flat=True)
-    return render(request, 'unsubscribe.html', context={'curr_subscribes': curr_subscribes,
-                                                      'old_subscribe': old_subscribe,
-                                                      'req_unsubscribe': req_unsubscribe, }
+    curr_subscribes = user.category_set.values_list('pk', flat=True)  # Все подписки-категории для юзера списком
+    req_subscribe = Category.objects.get(pk=pk).catname
+    if pk in curr_subscribes:  # Проверка активна ли подписка
+        Category.objects.get(pk=pk).subscribers.remove(user)
+        old_subscribe = req_subscribe
+    return render(request, 'unsubscribe.html', context={'curr_subscribes': user.category_set.values_list('catname', flat=True),
+                                                           'old_subscribe': old_subscribe,
+                                                           'req_subscribe': req_subscribe, }
                   )

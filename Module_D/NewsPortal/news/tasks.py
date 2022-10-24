@@ -11,7 +11,7 @@ from news.models import Post, Category
 def weekly_digest():
     week_ago_time = datetime.now( ) - timedelta(weeks=1)
     posts_last_week = Post.objects.filter(cr_time__gte=week_ago_time)
-    categories_last_week = set(posts_last_week.values_list('postcategory__category__catname', flat=True))
+    categories_last_week = set(posts_last_week.values_list('category__catname', flat=True))
     subscribers_last_week = set(Category.objects.filter(catname__in=categories_last_week).values_list('subscribers__pk',
                                                                                                       'subscribers__username',
                                                                                                       'subscribers__email'
@@ -23,7 +23,7 @@ def weekly_digest():
             subscriber_obj = User.objects.get(pk=subscriber[0])  # Категории, на которые подписан юзер
             # Из ранее отфильтрованных постов фильтруем с нужной категорией
             posts_for_subscriber = list(set(Post.objects.filter(pk__in=posts_last_week,
-                                                                postcategory__category__in=subscriber_obj.category_set.all()
+                                                                category__in=subscriber_obj.category_set.all()
                                                                )
                                             )
                                         )

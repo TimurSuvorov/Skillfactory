@@ -57,7 +57,7 @@ INSTALLED_APPS = [
 ]
 
 SITE_ID = 1
-SITE_URL = 'http://127.0.0.1:8000/'
+SITE_URL = 'http://127.0.0.1:8000'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -177,7 +177,7 @@ EMAIL_HOST_USER = os.getenv('yandex_EMAIL_HOST_USER')  # ваше имя пол�
 EMAIL_HOST_PASSWORD = os.getenv("yandex_EMAIL_HOST_PASSWORD")  # пароль от почты
 EMAIL_USE_SSL = True
 DEFAULT_FROM_EMAIL = os.getenv("yandex_EMAIL_HOST_USER")+'@yandex.ru'
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # # Setup for SMTP SendGrid
 # SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
