@@ -177,7 +177,7 @@ EMAIL_HOST_USER = os.getenv('yandex_EMAIL_HOST_USER')  # ваше имя пол�
 EMAIL_HOST_PASSWORD = os.getenv("yandex_EMAIL_HOST_PASSWORD")  # пароль от почты
 EMAIL_USE_SSL = True
 DEFAULT_FROM_EMAIL = os.getenv("yandex_EMAIL_HOST_USER")+'@yandex.ru'
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # # Setup for SMTP SendGrid
 # SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')

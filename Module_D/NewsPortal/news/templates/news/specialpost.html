@@ -25,5 +25,6 @@
 <p align="right" autofocus>Дата публикации: {{ specialpost.cr_time|date:"d M Y" }}</p>
 <p class="line" align="left"> {{ specialpost.content|censor:'*' }} </p>
 
+<p align="left">{% for categ in specialpost.category.all %} {{ categ }} {% endfor %}</p>
 
 {% endblock content %}

@@ -83,7 +83,7 @@ class CreateNews(PermissionRequiredMixin, CreateView):
         day_ago_time = datetime.now() - timedelta(days=1)
         posts_numbers_last_day = Post.objects.filter(cr_time__gt=day_ago_time,
                                                      postAuthor__author__username=self.request.user).count()
-        if posts_numbers_last_day >= 3:
+        if posts_numbers_last_day >= 13:
             raise PermissionDenied('Вы слишком много пишите, отдохните!')
 
         perms = self.get_permission_required()
