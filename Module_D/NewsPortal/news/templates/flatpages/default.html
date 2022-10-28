@@ -35,7 +35,9 @@
                         {% else %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'account_login' %}">Вход</a></li>
                         {% endif %}
+                        {% if request.user.is_superuser %}
                         <li class="nav-item"><a class="nav-link" href="/admin">Админ панель</a></li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>

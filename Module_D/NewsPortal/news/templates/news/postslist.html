@@ -23,7 +23,7 @@
     }
     ul {
         padding: 1; /* Убираем поля */
-        margin-left: 10px; /* Отступ слева */
+        margin-left: 0px; /* Отступ слева */
     }
 
 </style>
@@ -108,7 +108,6 @@
         </tr>
     {% endfor %}
     </table>
-<hr>
 {% endif %}
 
 <div>
@@ -143,19 +142,16 @@
 {% endif %}
 </div>
 
+<hr>
+
 {# Кнопки добавления новости/статьи #}
 
 {% if perms.news.add_post %}
 
-<p>
-    <form style="display:inline" action="{% url 'news_create' %}">
-        <button>Добавить новость</button>
-    </form>
-    <form style="display:inline" action="{% url 'article_create' %}">
-        <button>Добавить статью</button>
-    </form>
+<p class="text-center">
+    <a href="{% url 'news_create' %}" class="btn btn-primary btn-sm">Добавить новость</a>
+    <a href="{% url 'article_create' %}" class="btn btn-primary btn-sm">Добавить статью</a>
 </p>
-
 {% endif %}
 
 {% endblock content %}

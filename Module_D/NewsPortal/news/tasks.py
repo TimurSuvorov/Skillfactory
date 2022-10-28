@@ -1,14 +1,39 @@
 from datetime import datetime, timedelta
 from django.contrib.auth.models import User
-from django.core.mail import EmailMultiAlternatives, send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from NewsPortal import settings
 from NewsPortal.settings import SITE_URL, DEFAULT_FROM_EMAIL
 from news.models import Post, Category
 
+from celery import shared_task
+
+
+# Задание на рассылку подписки
+@shared_task
+def send_to_subscribers_async(t_pk):
+    instance = Post.objects.get(pk=t_pk)
+    categories_added = instance.category.all()
+    subscribers_data = []
+    for category in categories_added:
+        subscribers_data += category.subscribers.values_list('username', 'email')
+    if subscribers_data:
+        for subscr_user, subscr_email in set(subscribers_data):
+            if subscr_user != instance.postAuthor.author.username:
+                html_content = render_to_string('subscribermessage.html',
+                                                {'newpostdata': instance,
+                                                 'subscr_user': subscr_user,
+                                                 'subscr_email': subscr_email,
+                                                 'site_url': SITE_URL
+                                                 },
+                                                )
+                send_mail_function(html_content, subscr_email, subject_email='Update for you')
+                print(f'SysInfo: Отправлено письмо по сигналу создания поста: {subscr_user} по адресу {subscr_email}')
+
 
 # Задание на еженедельную рассылку новостей
-def weekly_digest():
+@shared_task
+def weekly_digest_async():
     week_ago_time = datetime.now( ) - timedelta(weeks=1)
     posts_last_week = Post.objects.filter(cr_time__gte=week_ago_time)
     categories_last_week = set(posts_last_week.values_list('category__catname', flat=True))
@@ -42,7 +67,7 @@ def weekly_digest():
             send_mail_function(html_content,
                                to_email=subscriber_dict['subcr_email'],
                                body_email='',
-                               subject_email='Test',
+                               subject_email='Weekly digest',
                                from_email=DEFAULT_FROM_EMAIL)
 
             print('SysInfo:Отправлено письмо по с недельным дайджестом:', subscriber_dict['subcr_username'])

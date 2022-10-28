@@ -20,7 +20,7 @@
 <ul>
     <h4>Все текущие подписки:</h4>
     {% for curr_subscribe in curr_subscribes %}
-        <li style="padding-left: 0px">{{ curr_subscribe }}</li>
+        <li style="padding-left: 0px"><a href="{% url 'category_list' pk=curr_subscribe.pk %}">{{ curr_subscribe }}</a></li>
     {% endfor %}
 </ul>
 </div>

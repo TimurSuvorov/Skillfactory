@@ -1,12 +1,11 @@
-from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.forms import ModelForm, ModelChoiceField, CharField, ModelMultipleChoiceField, SelectMultiple
-from .models import Post, Author, Category
+from django.forms import ModelForm, CharField, ModelMultipleChoiceField, SelectMultiple
+from .models import Post, Category
 
 
 class PostForm(ModelForm):
-    title = CharField(min_length=1, label='Название')
-    content = CharField(min_length=1, label='Содержание')
+    title = CharField(min_length=3, label='Название')
+    content = CharField(min_length=3, label='Содержание')
     category = ModelMultipleChoiceField(label='Категория',
                                         queryset=Category.objects.all(),
                                         widget=SelectMultiple

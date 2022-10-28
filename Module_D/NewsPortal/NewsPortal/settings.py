@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.vk',
 
     'django_apscheduler',
+    'django_celery_beat',
 ]
 
 SITE_ID = 1
@@ -125,7 +126,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Minsk'
 
 USE_I18N = True
 
@@ -155,7 +156,7 @@ AUTHENTICATION_BACKENDS = [
 LOGIN_REDIRECT_URL = '/news'
 LOGOUT_REDIRECT_URL = '/news'
 
-# Загрузка переменных окружения
+# Check enviroment varibles loading
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
@@ -164,6 +165,7 @@ else:
 
 #ACCOUNT_FORMS = {"signup": "accounts.forms.SignUp"}  # Переопределение формы по умолчанию
 
+# Common email setup
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
@@ -177,16 +179,16 @@ EMAIL_HOST_USER = os.getenv('yandex_EMAIL_HOST_USER')  # ваше имя пол�
 EMAIL_HOST_PASSWORD = os.getenv("yandex_EMAIL_HOST_PASSWORD")  # пароль от почты
 EMAIL_USE_SSL = True
 DEFAULT_FROM_EMAIL = os.getenv("yandex_EMAIL_HOST_USER")+'@yandex.ru'
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-# # Setup for SMTP SendGrid
-# SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
-# EMAIL_HOST = 'smtp.sendgrid.net'
-# EMAIL_PORT = 587
-# EMAIL_HOST_USER = 'apikey' # this is exactly the value 'apikey'
-# EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
-# EMAIL_USE_TLS = True
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Apscheduler settings
 APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 APSCHEDULER_RUN_NOW_TIMEOUT = 25
+
+# Celery settings
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

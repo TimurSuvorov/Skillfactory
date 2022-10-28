@@ -39,8 +39,8 @@
 
 <h1>Новости категории {{ category }}</h1>
 <hr>
-{# Подписка на категорию #}
 
+{# Подписка на категорию #}
 {% if is_not_subscriber%}
     <p class="text-center"><a href="{% url 'subscribe' category.id %}" class="btn btn-secondary btn-sm">Подписаться</a></p>
 {% else %}
@@ -48,7 +48,6 @@
 {% endif %}
 
 <hr>
-
 
 <p align="left"> Общее количество: {{ paginator.count }}</p>
 

@@ -16,12 +16,10 @@ from .filters import NewsFilter
 
 from pprint import pprint
 
-from .tasks import send_mail, send_mail_function
-
 
 class NewsList(ListView):
     model = Post
-    ordering = 'cr_time'
+    ordering = '-cr_time'
     template_name = 'postslist.html'
     context_object_name = 'newslist'
     paginate_by = 10
@@ -39,7 +37,7 @@ class NewsList(ListView):
 
 class SearchNewsList(ListView):
     model = Post
-    ordering = 'cr_time'
+    mcdonalds = '-cr_time'
     template_name = 'searchpostslist.html'
     context_object_name = 'newslist'
     paginate_by = 10
@@ -57,7 +55,6 @@ class SearchNewsList(ListView):
 
 class SpecialPost(DetailView):
     model = Post
-    ordering = 'cr_time'
     template_name = 'specialpost.html'
     context_object_name = 'specialpost'
     pk_url_kwarg = 'id'
@@ -187,11 +184,11 @@ def subscribe(request: HttpRequest, pk, new_subscribe=None):
     if not (pk in curr_subscribes):  # Проверка активна ли подписка
         Category.objects.get(pk=pk).subscribers.add(user)
         new_subscribe = req_subscribe
-    return render(request, 'subscribe.html', context={'curr_subscribes': user.category_set.values_list('catname', flat=True),
-                                                           'new_subscribe': new_subscribe,
-                                                           'req_subscribe': req_subscribe, }
+    return render(request, 'subscribe.html', context={'curr_subscribes': user.category_set.all(),
+                                                      'new_subscribe': new_subscribe,
+                                                      'req_subscribe': req_subscribe,
+                                                      }
                   )
-
 
 @login_required
 def unsubscribe(request: HttpRequest, pk, old_subscribe=None):
@@ -201,7 +198,7 @@ def unsubscribe(request: HttpRequest, pk, old_subscribe=None):
     if pk in curr_subscribes:  # Проверка активна ли подписка
         Category.objects.get(pk=pk).subscribers.remove(user)
         old_subscribe = req_subscribe
-    return render(request, 'unsubscribe.html', context={'curr_subscribes': user.category_set.values_list('catname', flat=True),
+    return render(request, 'unsubscribe.html', context={'curr_subscribes': user.category_set.all(),
                                                            'old_subscribe': old_subscribe,
                                                            'req_subscribe': req_subscribe, }
                   )

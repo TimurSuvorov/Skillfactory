@@ -3,6 +3,13 @@ from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.urls import reverse
 
+ARTICLE = 'AR'
+NEWS = 'NW'
+
+TYPES = [
+    (ARTICLE, "Пост"),
+    (NEWS, "Новость")
+]
 
 class Author(models.Model):
     author = models.OneToOneField(User,
@@ -20,23 +27,6 @@ class Author(models.Model):
         verbose_name_plural = "Авторы"
 
     def update_rating(self):
-        # aupostrat = self.post_set.all().aggregate(AuPostRating=Sum('rating')).get('AuPostRating')
-        # if aupostrat is None:
-        #     aupostrat = 0
-        #
-        # aucommentrat = self.author.comment_set.all().aggregate(AuCommRating=Sum('rating')).get('AuCommRating')
-        # if aucommentrat is None:
-        #     aucommentrat = 0
-        #
-        # aupostcommentrat = 0
-        # for xpost in self.post_set.all():
-        #     xpostcommrat = xpost.comment_set.all().aggregate(AuPostCommRating=Sum('rating')).get('AuPostCommRating')
-        #     if xpostcommrat is None:
-        #         xpostcommrat = 0
-        #     aupostcommentrat += xpostcommrat
-        #
-        # self.rating = aupostrat*3 + aucommentrat + aupostcommentrat
-
         newrating = sum(Post.objects.filter(postAuthor=self).values_list('rating', flat=True)) * 3 + \
                     sum(Comment.objects.filter(commUser__author=self).values_list('rating', flat=True)) + \
                     sum(Comment.objects.filter(post__postAuthor=self).values_list('rating', flat=True))
@@ -59,14 +49,6 @@ class Category(models.Model):
 
 
 class Post(models.Model):
-
-    ARTICLE = 'AR'
-    NEWS = 'NW'
-
-    TYPES = [
-        (ARTICLE, "Пост"),
-        (NEWS, "Новость")
-    ]
 
     title = models.CharField(max_length=254)
     content = models.TextField()
