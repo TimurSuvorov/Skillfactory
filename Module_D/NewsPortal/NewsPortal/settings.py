@@ -215,152 +215,12 @@ CACHES = {
 
 LOGOUT_TIMEOUT = 60 * 60 * 24
 
-
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'formatters': {
-#         'console_debug': {
-#             'format': '{asctime} | {levelname} | {message}',
-#             'style': '{'
-#         },
-#         'console_warning': {
-#             'format': '{asctime} | {levelname} | {message} | {pathname}',
-#             'style': '{'
-#         },
-#         'console_error': {
-#             'format': '{asctime} | {levelname} | {message} | {pathname} | {exc_info}',
-#             'style': '{'
-#         },
-#         'file_general_security': {
-#             'format': '{asctime} | {levelname} | {module} | {message}',
-#             'style': '{'
-#         },
-#         'file_errors': {
-#             'format': '{asctime} | {levelname} | {message} | {pathname} | {exc_info}',
-#             'style': '{'
-#         },
-#         'mail': {
-#             'format': '{asctime} | {levelname} | {message} | {pathname}',
-#             'style': '{'
-#         },
-#     },
-#     'filters': {
-#         'require_debug_true': {
-#             '()': 'django.utils.log.RequireDebugTrue',
-#         },
-#         'require_debug_false': {
-#             '()': 'django.utils.log.RequireDebugFalse',
-#         },
-#         'filter_debug_info_level': {
-#             '()': 'logging_formatter.log_middleware.FilterLevels',
-#             'filter_levels': [
-#                 "DEBUG",
-#                 "INFO",
-#             ]
-#         },
-#         'filter_warning_level': {
-#             '()': 'logging_formatter.log_middleware.FilterLevels',
-#             'filter_levels': [
-#                 "WARNING"
-#             ]
-#         },
-#     },
-#     'handlers': {
-#         'console_debug': {
-#             'class': 'logging.StreamHandler',
-#             'filters': ['require_debug_true',
-#                         'filter_debug_info_level',
-#                         ],
-#             'formatter': 'console_debug',
-#         },
-#         'console_warning': {
-#             'level': 'WARNING',
-#             'class': 'logging.StreamHandler',
-#             'filters': ['require_debug_true',
-#                         'filter_warning_level',
-#                         ],
-#             'formatter': 'console_warning',
-#         },
-#         'console_error': {
-#             'level': 'ERROR',
-#             'class': 'logging.StreamHandler',
-#             'filters': ['require_debug_true'],
-#             'formatter': 'console_error',
-#         },
-#         'file_general': {
-#             'level': 'INFO',
-#             'class': 'logging.FileHandler',
-#             'filters': ['require_debug_false'],
-#             'formatter': 'file_general_security',
-#             'filename': 'logs/general.log',
-#         },
-#         'file_errors': {
-#             'class': 'logging.FileHandler',
-#             'formatter': 'file_errors',
-#             'filename': 'logs/errors.log',
-#         },
-#         'file_security': {
-#             'class': 'logging.FileHandler',
-#             'formatter': 'file_general_security',
-#             'filename': 'logs/security.log',
-#         },
-#         'mail_admins': {
-#             'class': 'django.utils.log.AdminEmailHandler',
-#             'filters': ['require_debug_false'],
-#             'formatter': 'mail'
-#         }
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console_debug',
-#                          'console_warning',
-#                          'console_error',
-#                          'file_general',
-#                          ],
-#             'level': 'DEBUG',
-#             'propagate': False,
-#         },
-#
-#         'django.request': {
-#             'handlers': ['file_errors',
-#                          'mail_admins',
-#                          ],
-#             'level': 'ERROR',
-#             'propagate': True,
-#         },
-#         'django.server': {
-#             'handlers': ['file_errors',
-#                          'mail_admins'
-#                          ],
-#             'level': 'INFO',
-#             'propagate': True,
-#         },
-#         'django.template': {
-#             'handlers': ['file_errors'],
-#             'level': 'ERROR',
-#             'propagate': True,
-#         },
-#         'django.db.backends': {
-#             'handlers': ['file_errors'],
-#             'level': 'ERROR',
-#             'propagate': True,
-#         },
-#         'django.db.security': {
-#             'handlers': ['file_security'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#     },
-# }
-
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'console_debug': {
-            'format': 'console_debug: {asctime} | {levelname} | {message}',
+            'format': ' {asctime} | {levelname} | {message}',
             'style': '{'
         },
         'console_warning': {
@@ -391,19 +251,18 @@ LOGGING = {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse',
         },
-        'filter_debug_info_level': {
+        'filter_error_critical_level': {
             '()': 'logging_formatter.log_middleware.FilterLevels',
             'filter_levels': [
-                "DEBUG",
-                "INFO",
+                "ERROR",
+                "CRITICAL",
             ]
         },
     },
     'handlers': {
         'console_debug': {
             'class': 'logging.StreamHandler',
-            'filters': ['require_debug_true',
-                        'filter_debug_info_level'],
+            'filters': ['require_debug_true'],
             'formatter': 'console_debug',
         },
         'console_warning': {
@@ -427,6 +286,7 @@ LOGGING = {
         },
         'file_errors': {
             'class': 'logging.FileHandler',
+            'filters': ['filter_error_critical_level'],
             'formatter': 'file_errors',
             'filename': 'logs/errors.log',
         },
@@ -437,7 +297,9 @@ LOGGING = {
         },
         'mail_admins': {
             'class': 'django.utils.log.AdminEmailHandler',
-            'filters': ['require_debug_false'],
+            'filters': ['require_debug_false',
+                        'filter_error_critical_level',
+                        ],
             'formatter': 'mail'
         }
     },
@@ -449,7 +311,7 @@ LOGGING = {
                          'file_general',
                          ],
             'level': 'DEBUG',
-            'propagate': False,
+            'propagate': True,
         },
         'django.request': {
             'handlers': ['file_errors', 'mail_admins'],
@@ -459,7 +321,9 @@ LOGGING = {
         'django.server': {
             'handlers': ['file_errors',
                          'mail_admins'],
-            'level': 'INFO',
+            'level': 'INFO',  # МЕНТОРУ: Выставлено в INFO, иначе в случае с выставленным ERROR сообщения будут излишне
+                              # отсекаться при пропагинации в логгер django и console_debug будет выдавать только
+                              # выше ERROR. На обработчиках file_errors, mail_admins применен кастомный фильтр для выполнения ТЗ
             'propagate': True,
         },
         'django.template': {
