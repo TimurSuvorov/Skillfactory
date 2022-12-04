@@ -1,6 +1,7 @@
 {% extends 'flatpages/default.html' %}
 
 {% load custom_filters %}
+{% load custom_tags %}
 
 
 {% block title %}
@@ -19,9 +20,25 @@
     }
 </style>
 
-<h2 align="left">{{ specialpost.title|censor:'*' }}</h2>
+<h2 align="left">{{ specialpost.title|censor:'*'|linebreaks }}</h2>
 <hr>
 <p align="right" autofocus>Дата публикации: {{ specialpost.cr_time|date:"d M Y" }}</p>
+<p align="right" autofocus>Рейтинг статьи: {{ specialpost.rating }}</p>
 <p class="line" align="left"> {{ specialpost.content|censor:'*' }} </p>
+
+<p align="right">
+    {% if specialpost.postAuthor_id == currentuserid or request.user.is_superuser %}
+        {% if specialpost.type == 'NW' and perms.news.change_post and perms.news.delete_post  %}
+            <a href="{% url 'news_edit' pk=specialpost.pk %}" class="btn btn-outline-secondary btn-sm">Редактировать</a>
+            <a href="{% url 'news_delete' pk=specialpost.pk %}" class="btn btn-outline-secondary btn-sm">Удалить</a>
+        {% elif specialpost.type == 'AR' and perms.news.change_post and perms.news.delete_post %}
+            <a href="{% url 'article_edit' pk=specialpost.pk %}" class="btn btn-outline-secondary btn-sm">Редактировать</a>
+            <a href="{% url 'article_delete' pk=specialpost.pk %}" class="btn btn-outline-secondary btn-sm">Удалить</a>
+        {% endif %}
+    {% endif %}
+</p>
+
+
+<a href="#" onclick="history.back();return false;" class="btn btn-primary btn-sm" >Назад</a>
 
 {% endblock content %}

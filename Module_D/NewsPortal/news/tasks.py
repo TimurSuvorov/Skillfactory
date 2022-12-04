@@ -8,7 +8,6 @@ from news.models import Post, Category
 
 from celery import shared_task
 
-
 # Задание на рассылку подписки
 @shared_task
 def send_to_subscribers_async(t_pk):

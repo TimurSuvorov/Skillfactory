@@ -1,6 +1,7 @@
 {% extends 'flatpages/default.html' %}
 
 {% load custom_filters %}
+{% load custom_tags %}
 
 {% block title %}
 Новости категории {{ category }}
@@ -8,6 +9,7 @@
 
 
 {% block content %}
+
 <style>
     table {
       font-family: arial, sans-serif;
@@ -23,21 +25,71 @@
     }
     ul {
         padding: 1; /* Убираем поля */
-        margin-left: 10px; /* Отступ слева */
+        margin-left: 0; /* Отступ слева */
+    }
+body {
+    font-family: "Lato", sans-serif;
+}
+
+.sidenav {
+    height: 100%;
+    width: 160px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    padding-top: 40px;
+}
+
+.sidenav a {
+    padding: 6px 8px 6px 1px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #9a9898;
+    display: block;
+}
+
+.sidenav a:hover {
+    color: #9a9898;
+}
+
+.sidenav p {
+    padding: 6px 8px 1px 1px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #9a9898;
+    display: block;
+}
+
+.sidenav p:hover {
+    color: #9a9898;
+}
+
+.sidenav ul {
+        color: #f1f1f1;
+        font-size: 18px;
+        text-align: left;
     }
 
+
+.main {
+    margin-left: 160px; /* Same as the width of the sidenav */
+    font-size: 28px; /* Increased text to enable scrolling */
+    padding: 0px 10px;
+}
+
+@media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+}
 </style>
 
 {# Текущий пользователь и авторизация #}
-<div align="left">
-    {% if request.user.is_authenticated%}
-        <p align="left">Добро пожаловать пользователь "{{ request.user }}"</p>
-    {% else %}
-        <p align="left"><a href="{% url 'account_login' %}">Авторизируйтесь</a>, пожалуйста, на сайте</p>
-    {% endif %}
-</div>
+{% welcome-user %}
 
-<h1>Новости категории {{ category }}</h1>
+<h2>Новости категории <br> <em>{{ category }}</em></h2>
 <hr>
 
 {# Подписка на категорию #}
@@ -49,9 +101,11 @@
 
 <hr>
 
-<p align="left"> Общее количество: {{ paginator.count }}</p>
 
-{% if category_news_list %}
+
+{% if news_list %}
+    <p align="left"> Количество: {{ news_list.count }}</p>
+
     <table border="1" align="center">
         <tr>
             <th align="center">Заголовок</th>
@@ -61,17 +115,27 @@
             <th align="center">Тип</th>
             <th align="center">Содержание</th>
         </tr>
-    {% for news in category_news_list %}
+    {% for news in news_list %}
         <tr>
-            <td align="left"><a href="/news/{{ news.pk }}">{{ news.title|censor:"*"|truncatechars:55 }}</a></td>
+            <td align="left"><a href="{{ news.get_absolute_url }}">{{ news.title|censor:"*"|truncatechars:55 }}</a></td>
             <td align="center">{{ news.cr_time|date:'d M Y' }}</td>
             <td align="center">{{ news.postAuthor }}</td>
-            <td align="center">{% for cat in news.category.all %}{{ cat.catname }}&nbsp;{% endfor %}</td>
+            <td align="center">
+                {% for cat in news.category.all %}
+                    {% if cat.pk == cat_selected %}
+                        {{ cat.catname }}&nbsp;
+                    {% else %}
+                        <a href="{% url 'category_list' pk=cat.pk %}">{{ cat.catname }}&nbsp;</a>
+                    {% endif %}
+                {% endfor %}</td>
             <td align="center">{{ news.type|typetorus }}</td>
             <td align="center">{{ news.content|censor:"*"|truncatechars:30 }}</td>
         </tr>
+
     {% endfor %}
     </table>
+{% else %}
+    <h3>Ой, в этой категории ещё нет новостей, но вы можете подписаться на ее обновление </h3>
 <hr>
 {% endif %}
 
@@ -106,5 +170,26 @@
     <a href="?page={{ page_obj.paginator.num_pages }}">Last page</a>
 {% endif %}
 </div>
+
+ <!-- Side navigation -->
+<div class="sidenav">
+    {% if cat_selected == 0 %}
+        <p>Все категории</p>
+    {% else %}
+        <a href="{% url 'list_posts' %}">Все категории</a>
+    {% endif %}
+    <ul>
+        {% for cat in categories %}
+            {% if cat.pk == cat_selected %}
+                <li><a>{{ cat.catname }}</a></li>
+            {% else %}
+                <li><a href="{{ cat.get_absolute_url }}">{{ cat.catname }}</a></li>
+            {% endif  %}
+        {% endfor %}
+    </ul>
+
+</div>
+<hr>
+<a href="#" onclick="history.back();return false;" class="btn btn-primary btn-sm" >Назад</a>
 
 {% endblock content %}

@@ -8,7 +8,7 @@ from django.core.management.base import BaseCommand
 from django_apscheduler.jobstores import DjangoJobStore
 from django_apscheduler.models import DjangoJobExecution
 
-from news.tasks import weekly_digest
+from news.tasks import weekly_digest_async
 
 logger = logging.getLogger(__name__)
 
@@ -28,10 +28,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         scheduler = BlockingScheduler(timezone=settings.TIME_ZONE)
-        scheduler.add_jobstore(DjangoJobStore( ), "default")
+        scheduler.add_jobstore(DjangoJobStore(), "default")
 
         scheduler.add_job(
-            weekly_digest,
+            weekly_digest_async,
             trigger=CronTrigger(day_of_week="mon", hour="00", minute="00"),
             id="weekly_digest",
             max_instances=1,
@@ -57,8 +57,8 @@ class Command(BaseCommand):
 
         try:
             logger.info("Starting scheduler...")
-            scheduler.start( )
+            scheduler.start()
         except KeyboardInterrupt:
             logger.info("Stopping scheduler...")
-            scheduler.shutdown( )
+            scheduler.shutdown()
             logger.info("Scheduler shut down successfully!")

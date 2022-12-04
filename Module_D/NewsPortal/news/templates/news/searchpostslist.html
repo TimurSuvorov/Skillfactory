@@ -43,33 +43,14 @@
             <th align="center">Автор</th>
             <th align="center">Тип</th>
             <th align="center">Содержание</th>
-            {% if perms.news.change_post %}
-            <th align="center">Действие</th>
-            {% endif %}
         </tr>
     {% for news in newslist %}
         <tr>
-            <td align="left"><a href="/news/{{ news.pk }}">{{ news.title|censor:"*" }}</a></td>
+            <td align="left"><a href="{% url 'special_post' news.pk %}">{{ news.title|censor:"*" }}</a></td>
             <td align="center">{{ news.cr_time|date:'d M Y' }}</td>
             <td align="center">{{ news.postAuthor }}</td>
             <td align="center">{{ news.type|typetorus }}</td>
             <td align="center">{{ news.content|censor:"*"|truncatechars:30 }}</td>
-            {% if news.type == 'NW' and perms.news.change_post and perms.news.delete_post %}
-                {% if news.postAuthor_id == currentuserid or request.user.is_superuser %}
-                    <td align="center"><a href="{% url 'news_edit' pk=news.pk %}">{{ news.PostAuthor.id }}Edit</a>
-                                       <a href="{% url 'news_delete' pk=news.pk %}">Delete</a></td>
-                {% else %}
-                    <td align="center">Not available</td>
-                {% endif %}
-            {% endif %}
-            {% if news.type == 'AR' and perms.news.change_post and perms.news.delete_post%}
-                {% if news.postAuthor_id == currentuserid or request.user.is_superuser %}
-                    <td align="center"><a href="{% url 'article_edit' pk=news.pk %}">Edit</a>
-                                       <a href="{% url 'article_delete' pk=news.pk %}">Delete</a></td>
-                {% else %}
-                    <td align="center">Not available</td>
-                {% endif %}
-            {% endif %}
         </tr>
     {% endfor %}
     </table>

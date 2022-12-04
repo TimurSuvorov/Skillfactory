@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Sum
@@ -11,13 +12,17 @@ TYPES = [
     (NEWS, "Новость")
 ]
 
+
 class Author(models.Model):
     author = models.OneToOneField(User,
                                   on_delete=models.CASCADE,
-                                  primary_key=True  # Первичный ключ будет тот же, что и внешний ключ
+                                  primary_key=True,  # Первичный ключ будет тот же, что и внешний ключ
+                                  verbose_name='Автор'
                                   )
 
-    rating = models.SmallIntegerField(default=0)
+    rating = models.SmallIntegerField(default=0,
+                                      verbose_name='Рейтинг'
+                                      )
 
     def __str__(self):
         return f"{self.author}"
@@ -34,14 +39,25 @@ class Author(models.Model):
         self.rating = newrating
         self.save()
 
+    @property
+    def postnumber(self):
+        num = len(self.post_set.all())
+        return num
+
 
 class Category(models.Model):
     catname = models.CharField(max_length=64,
-                               unique=True)
-    subscribers =models.ManyToManyField(User, through='UserCategory')
+                               unique=True,
+                               verbose_name='Категория')
+    subscribers = models.ManyToManyField(User,
+                                         through='UserCategory',
+                                         verbose_name='Подписчики')
 
     def __str__(self):
         return f"{self.catname}"
+
+    def get_absolute_url(self):
+        return reverse('category_list', args=[str(self.pk)])
 
     class Meta:
         verbose_name = "Категория"
@@ -57,11 +73,12 @@ class Post(models.Model):
                             choices=TYPES,
                             blank=True,
                             null=True,
-                            default='post'
+                            default='post',
+                            verbose_name='Тип'
                             )
-    cr_time = models.DateTimeField(auto_now_add=True)
-    postAuthor = models.ForeignKey(Author, on_delete=models.RESTRICT)
-    category = models.ManyToManyField(Category, through='PostCategory')
+    cr_time = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
+    postAuthor = models.ForeignKey(Author, on_delete=models.RESTRICT, verbose_name='Автор')
+    category = models.ManyToManyField(Category, through='PostCategory', verbose_name='Категория')
 
     def __str__(self):
         return f"{self.title}"
@@ -82,12 +99,20 @@ class Post(models.Model):
         self.save()
 
     def get_absolute_url(self):
-        return reverse('special_post', args=[str(self.id)])
+        return reverse('special_post', args=[str(self.pk)])
+
+    def save(self, *args, **kwargs):
+        super().save()
+        cache.delete(f'post-{self.pk}')
 
 
 class PostCategory(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = "Пост-Категория"
+        verbose_name_plural = "Пост-Категория"
 
     def __str__(self):
         return f"{self.category.catname}: {self.post.title}"
@@ -102,11 +127,11 @@ class UserCategory(models.Model):
 
 
 class Comment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    commUser = models.ForeignKey(User, on_delete=models.CASCADE)
-    content = models.TextField(blank=False)
-    cr_time = models.DateTimeField(auto_now_add=True)
-    rating = models.IntegerField(default=0)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, verbose_name='Пост')
+    commUser = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор комментария')
+    content = models.TextField(blank=False, verbose_name='Содержание')
+    cr_time = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
+    rating = models.IntegerField(default=0, verbose_name='Рейтинг')
 
     def __str__(self):
         return f"{self.content}"
@@ -122,3 +147,14 @@ class Comment(models.Model):
     def dislike(self):
         self.rating -= 1
         self.save()
+
+
+class UserInfo(models.Model):
+    country = models.CharField(max_length=124,
+                               default='na',
+                               verbose_name='Страна'
+                               )
+    user = models.OneToOneField(User,
+                                on_delete=models.CASCADE,
+                                verbose_name='Пользователь'
+                                )

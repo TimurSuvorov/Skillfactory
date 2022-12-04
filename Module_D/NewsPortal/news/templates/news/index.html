@@ -1,0 +1,22 @@
+{% extends 'flatpages/default.html' %}
+
+{% block title %}
+Все новости
+{% endblock title %}
+
+{% block content %}
+<h1>Весь список новостей</h1>
+<div class="text-left mt-5">
+    <ul>
+        {% for p in posts %}
+            <li >
+                <h3 align="left"><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></h3>
+                <p align="left">{{ p.content|truncatechars:400 }}</p>
+                <h6 align="right">{{ p.cr_time|date:'d/m/Y'}}</h6>
+                <hr>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock content %}

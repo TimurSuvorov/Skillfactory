@@ -1,0 +1,23 @@
+<style>
+  p {
+    color: black;
+  }
+  .authorization {
+    font-size: 12px;
+    color: gray;
+  }
+
+</style>
+
+<div align="left">
+    {% if request.user.is_authenticated%}
+        <p align="left">Добро пожаловать, пользователь "{{ request.user }}"</p>
+    {% else %}
+        <p align="left"><a href="{% url 'account_login' %}">Авторизируйтесь</a>, пожалуйста, на сайте</p>
+    {% endif %}
+
+    {% if request.user.is_authenticated and not isauthor %}
+        <p class="authorization"><i>Сейчас вы не можете публиковать свои статьи и новости.
+            <a href="{% url 'addtoauthors' %}">Станьте автором прямо сейчас</a></i></p>
+    {% endif %}
+</div>

@@ -14,7 +14,7 @@ from .tasks import send_to_subscribers_async
 @receiver(m2m_changed, sender=PostCategory)
 def send_to_subscribers(sender, instance, **kwargs):
     if kwargs['action'] == 'post_add':
-        send_to_subscribers_async.apply_async([instance.pk], expires=120)
+        send_to_subscribers_async.delay(instance.pk)
 
 
 # Сигнал нового пользователя(прохождение верификации)
